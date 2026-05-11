@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>Pantaludounboundiglossia</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            background-color: #121213; 
+            color: white; 
+            margin: 0; 
+            padding: 5px; 
+            min-height: 100vh;
+            box-sizing: border-box;
+            overflow-x: hidden;
+            width: 100%;
+        }
+        h1 { margin-bottom: 10px; color: #56a5d9; font-size: 1.5rem; text-align: center; word-break: break-word; }
+        .row { 
+            padding-bottom: 5px;
+            display: flex; 
+            gap: 2px; 
+            justify-content: center; 
+            flex-wrap: nowrap; 
+            overflow-x: auto;
+        }
+        .tile { 
+            width: var(--tile-size, 35px);
+            height: var(--tile-size, 35px);
+            border: 1px solid #3a3a3c; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: var(--tile-font-size, 1.2rem);
+            line-height: 1;
+            font-weight: bold; 
+            text-transform: uppercase; 
+            border-radius: 4px; 
+            font-family: monospace; 
+            flex-shrink: 0;
+            box-sizing: border-box;
+            overflow-x: hidden;
+            width: 100%;
+        }
+        @media (max-width: 400px) {
+            .tile { border-width: 1px; }
+        }
+        .match { background-color: #538d4e; border-color: #538d4e; color: white !important; }
+        .partial { background-color: #b59f3b; border-color: #b59f3b; color: white !important; }
+        .none { background-color: #3a3a3c; border-color: #3a3a3c; }
+        .alphabet-letter.match { background-color: #538d4e; border-color: #538d4e; color: white; }
+        .alphabet-letter.partial { background-color: #b59f3b; border-color: #b59f3b; color: white; }
+        input { 
+            padding: 5px; 
+            font-size: 1.1rem; 
+            border-radius: 4px; 
+            border: none; 
+            flex-grow: 1; 
+            min-width: 0;
+            text-transform: lowercase; 
+            background: #272729; 
+            color: white; 
+            font-family: monospace; 
+        }
+        .kb-toggle {
+            background: none;
+            border: 1px solid #3a3a3c;
+            color: #888;
+            padding: 5px;
+            font-size: 1.2rem;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .kb-toggle.active {
+            color: #56a5d9;
+            border-color: #56a5d9;
+        }
+        button { 
+            padding: 10px 15px; 
+            font-size: 1rem; 
+            border-radius: 4px; 
+            border: none; 
+            cursor: pointer; 
+            background-color: #56a5d9; 
+            color: white; 
+            font-weight: bold; 
+            flex-shrink: 0;
+            box-sizing: border-box;
+            overflow-x: hidden;
+            width: 100%;
+            touch-action: manipulation;
+        }
+        button:hover { background-color: #4a8dbd; }
+        button:disabled { background-color: #333; cursor: not-allowed; }
+        .message { margin-top: 10px; font-weight: bold; min-height: 1.5em; text-align: center; font-size: 0.9rem; }
+        .error { color: #ff5e5e; }
+        .success { color: #538d4e; font-size: 1.2rem; }
+        .alphabet-container { 
+            margin-top: 15px; 
+            font-family: monospace; 
+            font-size: 0.9rem; 
+            letter-spacing: 2px; 
+            color: #818384; 
+            text-align: center; 
+            line-height: 1.6; 
+            word-break: break-all;
+        }
+        
+        #helpModal > div {
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .alphabet-letter {
+            cursor: pointer;
+            padding: 4px 8px;
+            margin: 2px;
+            border: 1px solid #3a3a3c;
+            border-radius: 4px;
+            display: inline-block;
+            background: #272729;
+            user-select: none;
+            transition: background 0.2s;
+            font-size: 1rem;
+            color: #d7dadc;
+        }
+        .alphabet-letter:active {
+            background: #3a3a3c;
+        }
+
+        @media (min-width: 600px) {
+            body { padding: 20px; }
+            h1 { font-size: 2rem; }
+            .tile { width: 40px; height: 40px; font-size: 1.5rem; }
+            .message { font-size: 1rem; }
+            .success { font-size: 1.5rem; }
+            .alphabet-container { font-size: 1.2rem; letter-spacing: 5px; }
+            input { font-size: 1.2rem; }
+            button { font-size: 1.1rem; }
+            .alphabet-letter { padding: 5px 10px; font-size: 1.1rem; }
+        }
+    </style>
+</head>
+<body>
+    <div id="loadingOverlay">
+        <div style="font-size: 1.5rem;">Loading Game Data...</div>
+        <div style="font-size: 0.9rem; color: #888;">Downloading data bundles</div>
+    </div>
+
+    <!-- Help Modal -->
+        <div style="background: #272729; padding: 20px; border-radius: 8px; max-width: 600px; width: 90%; position: relative; line-height: 1.6; border: 1px solid #3a3a3c;">
+            <button onclick="toggleHelp()" style="position: absolute; top: 10px; right: 15px; background: none; border: none; color: #888; font-size: 1.5rem; cursor: pointer;">&times;</button>
+            <h2 style="color: #56a5d9; margin-top: 0; font-size: 1.2rem;">How to Play!</h2>
+            <p style="font-size: 0.9rem;">Guess the hidden word! You can enter words of <strong>any length</strong>.</p>
+            
+            <h3 style="font-size: 0.9rem; margin-bottom: 10px;">Color Rules:</h3>
+            <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px; font-size: 0.85rem;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div class="tile match" style="width: 25px; height: 25px; font-size: 0.9rem;">A</div> 
+                    <span>Match: Correct letter in the correct spot.</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div class="tile partial" style="width: 25px; height: 25px; font-size: 0.9rem;">B</div> 
+                    <span>Partial: In the word, but in a different spot.</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div class="tile none" style="width: 25px; height: 25px; font-size: 0.9rem;">C</div> 
+                    <span>No Match: Not in the word at all.</span>
+                </div>
+            </div>
+
+            <ul style="padding-left: 20px; font-size: 0.85rem;">
+                <li><strong>Alphabet:</strong> Useless letters are removed.</li>
+                <li><strong>Dictionary:</strong> Guesses must be valid words.</li>
+                <li style="margin-top: 10px; color: #888; font-size: 0.75rem;">Version 0.1</li>
+            </ul>
+        </div>
+    </div>
+
+        <button id="fsBtn" onclick="toggleFullScreen()" style="background: none; border: 1px solid #3a3a3c; color: #888; padding: 5px; font-size: 1.2rem; border-radius: 4px;" title="Toggle Fullscreen">⛶</button>
+        <h1 style="margin: 0; flex-grow: 1; font-size: 1.2rem;">Pantaludounboundiglossia!</h1>
+        <button id="helpBtn" onclick="toggleHelp()" style="background: none; border: 1px solid #3a3a3c; color: #888; padding: 5px 10px; font-size: 0.8rem; border-radius: 4px; white-space: nowrap;">Help ?</button>
+    </div>
+    <div id="subtitle" style="color: #90a4ae; font-size: 0.9rem; margin-top: 10px; margin-bottom: 25px; font-style: italic;">"In the beginning there was the word. Then it got complicated..."</div>
+    <div class="game-container">
+        <div id="history" class="history"></div>
+        <div id="alphabet" class="alphabet-container"></div>
+        <div class="input-area">
+            <button class="kb-toggle" id="kbToggle" onclick="toggleKeyboard()" title="Toggle System Keyboard">⌨</button>
+            <input type="text" id="guessInput" placeholder="Type a word..." disabled autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" inputmode="none">
+            <button id="guessBtn" onclick="submitGuess()" disabled>Guess</button>
+        </div>
+        <div id="message" class="message"></div>
+        <div style="text-align:center; margin-top: 30px; display: flex; gap: 10px; justify-content: center;">
+            <button id="giveUpBtn" style="background-color: #7a3a3a;" onclick="giveUp()" disabled>I give up</button>
+            <button id="newGameBtn" style="background-color: #3a3a3c;" onclick="startNewGame()" disabled>New Game</button>
+        </div>
+    </div>
+
+    <script>
+        // Set this to the location of your web_data.json file
+        const DATA_URL = 'web_data.json';
+        const VALID_WORDS_URL = 'valid_words.json'; 
+
+        let dictionary = new Set();
+        let pfWords = []; // Array of {w, f}
+        let totalPfFreq = 0;
+        let targetWord = "";
+        let history = [];
+        let letterStatuses = {}; // { 'a': 'match', 'b': 'partial', 'c': 'useless' }
+
+        const guessInput = document.getElementById('guessInput');
+        const historyDiv = document.getElementById('history');
+        const messageDiv = document.getElementById('message');
+        const alphabetDiv = document.getElementById('alphabet');
+        const giveUpBtn = document.getElementById('giveUpBtn');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const helpModal = document.getElementById('helpModal');
+        const subtitle = document.getElementById('subtitle');
+        const headerContainer = document.getElementById('headerContainer');
+
+        function toggleHelp() {
+            const isVisible = helpModal.style.display === 'flex';
+            helpModal.style.display = isVisible ? 'none' : 'flex';
+        }
+
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.error(`Error attempting to enable full-screen mode: ${err.message}`);
+                });
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+
+        async function init() {
+            try {
+                const response = await fetch(DATA_URL);
+                if (!response.ok) throw new Error("Could not find web_data.json");
+                
+                const data = await response.json();
+
+                // 1. Load optimized Dictionary
+                // 1. Load optimized Dictionary
+                const validRes = await fetch(VALID_WORDS_URL);
+                const validWords = await validRes.json();
+                dictionary = new Set(validWords);
+
+                // 2. Load Targets
+                pfWords = data.targets;
+                
+                // Calculate total frequency using BigInt if needed, but for relative probability number is fine
+                totalPfFreq = pfWords.reduce((sum, item) => sum + Number(item.f), 0);
+
+                loadingOverlay.style.display = 'none';
+                document.querySelectorAll('button, input').forEach(el => el.disabled = false);
+                startNewGame();
+
+            } catch (err) {
+                loadingOverlay.innerHTML = `<div class='error'>Error loading data bundle.<br><br>Make sure the JSON files are in the same folder as index.html.</div>`;
+                console.error(err);
+            }
+        }
+
+        function startNewGame() {
+            if (pfWords.length === 0) return;
+
+            // Weighted random selection
+            let r = Math.random() * totalPfFreq;
+            for (let item of pfWords) {
+                r -= Number(item.f);
+                if (r <= 0) {
+                    targetWord = item.w;
+                    break;
+                }
+            }
+            if (!targetWord) targetWord = pfWords[0].w;
+
+            history = [];
+            letterStatuses = {};
+            historyDiv.innerHTML = '';
+            subtitle.style.display = 'block';
+            headerContainer.style.marginBottom = '0px';
+            messageDiv.textContent = 'New target selected!';
+            messageDiv.className = 'message';
+            guessInput.disabled = false;
+            guessInput.value = '';
+            guessInput.focus();
+            giveUpBtn.disabled = false;
+            adjustLayout();
+            updateAlphabet();
+        }
+
+        function submitGuess() {
+            const guess = guessInput.value.trim().toLowerCase();
+            if (!guess) return;
+
+            if (!dictionary.has(guess)) {
+                messageDiv.textContent = 'Word not in dictionary';
+                messageDiv.className = 'message error';
+                return;
+            }
+
+            messageDiv.textContent = '';
+            subtitle.style.display = 'none';
+            headerContainer.style.marginBottom = '50px';
+            const feedback = calculateFeedback(guess, targetWord);
+            history.push(feedback);
+            
+            adjustLayout();
+            updateHistory();
+            updateAlphabet();
+            guessInput.value = '';
+
+            if (guess === targetWord) {
+                messageDiv.textContent = 'Congratulations! You guessed it!';
+                messageDiv.className = 'message success';
+                guessInput.disabled = true;
+                giveUpBtn.disabled = true;
+            }
+        }
+
+        function adjustLayout() {
+            let maxLen = targetWord.length || 5;
+            history.forEach(row => { if (row.length > maxLen) maxLen = row.length; });
+            
+            const containerWidth = document.querySelector('.game-container').offsetWidth || window.innerWidth;
+             // minimal padding
+            
+            // Calculate size to fit maxLen tiles plus gaps (2px)
+            const gapSize = (maxLen - 1) * 2;
+            let tileSize = Math.floor((availableWidth - gapSize) / maxLen);
+            
+            // Constraints
+            if (tileSize > 45) tileSize = 45;
+            if (tileSize < 12) tileSize = 12; // Allow even smaller for extreme cases
+            
+            const fontSize = (tileSize * 0.7) / 16;
+            
+            document.documentElement.style.setProperty('--tile-size', tileSize + 'px');
+            document.documentElement.style.setProperty('--tile-font-size', fontSize + 'rem');
+        }
+
+        function calculateFeedback(guess, target) {
+            const gArr = [...guess];
+            const tArr = [...target];
+            const feedback = gArr.map(char => ({ char, status: 'none' }));
+            const usedInTarget = Array(tArr.length).fill(false);
+
+            // 1st pass: Matches
+            gArr.forEach((char, i) => {
+                if (i < tArr.length && char === tArr[i]) {
+                    feedback[i].status = 'match';
+                    usedInTarget[i] = true;
+                    letterStatuses[char] = 'match';
+                }
+            });
+
+            // 2nd pass: Partial Matches
+            gArr.forEach((char, i) => {
+                if (feedback[i].status !== 'match') {
+                    let found = false;
+                    for (let j = 0; j < tArr.length; j++) {
+                        if (!usedInTarget[j] && char === tArr[j]) {
+                            feedback[i].status = 'partial';
+                            usedInTarget[j] = true;
+                            found = true;
+                            if (letterStatuses[char] !== 'match') {
+                                letterStatuses[char] = 'partial';
+                            }
+                            break;
+                        }
+                    }
+                    if (!found && !tArr.includes(char)) {
+                        letterStatuses[char] = 'useless';
+                    }
+                }
+            });
+
+            return feedback;
+        }
+
+        function giveUp() {
+            messageDiv.innerHTML = 'The word was: <span style="color: #ff5e5e; font-size: 1.5rem;">' + targetWord + '</span>';
+            guessInput.disabled = true;
+            giveUpBtn.disabled = true;
+        }
+
+        function updateHistory() {
+            historyDiv.innerHTML = '';
+            history.forEach(row => {
+                const rowDiv = document.createElement('div');
+                rowDiv.className = 'row';
+                row.forEach(tile => {
+                    const tileDiv = document.createElement('div');
+                    tileDiv.className = 'tile ' + tile.status;
+                    tileDiv.textContent = tile.char;
+                    rowDiv.appendChild(tileDiv);
+                });
+                historyDiv.appendChild(rowDiv);
+            });
+            // Scroll to bottom of history
+            window.scrollTo(0, document.body.scrollHeight);
+        }
+
+        function updateAlphabet() {
+            const full = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+            alphabetDiv.innerHTML = '';
+            full.forEach(char => {
+                const lowerChar = char.toLowerCase();
+                const status = letterStatuses[lowerChar] || 'none';
+                
+                if (status !== 'useless') {
+                    const letterDiv = document.createElement('div');
+                    letterDiv.className = 'alphabet-letter ' + (status !== 'none' ? status : '');
+                    letterDiv.textContent = char;
+                    letterDiv.onclick = () => addLetter(lowerChar);
+                    alphabetDiv.appendChild(letterDiv);
+                }
+            });
+
+            // Add Backspace button
+            const backspaceBtn = document.createElement('div');
+            backspaceBtn.className = 'alphabet-letter';
+            backspaceBtn.style.backgroundColor = '#4a4a4c';
+            backspaceBtn.innerHTML = '&#9003;'; // Backspace icon
+            backspaceBtn.onclick = deleteLetter;
+            alphabetDiv.appendChild(backspaceBtn);
+        }
+
+        function toggleKeyboard() {
+            const kbToggle = document.getElementById('kbToggle');
+            const isVirtual = guessInput.getAttribute('inputmode') === 'none';
+            
+            if (isVirtual) {
+                guessInput.setAttribute('inputmode', 'text');
+                kbToggle.classList.add('active');
+                guessInput.focus();
+            } else {
+                guessInput.setAttribute('inputmode', 'none');
+                kbToggle.classList.remove('active');
+                guessInput.blur();
+            }
+        }
+
+        function addLetter(char) {
+            if (guessInput.disabled) return;
+            guessInput.value += char;
+            
+            // Only re-focus if system keyboard is active
+            if (guessInput.getAttribute('inputmode') !== 'none') {
+                guessInput.focus();
+            }
+        }
+
+        function deleteLetter() {
+            if (guessInput.disabled) return;
+            guessInput.value = guessInput.value.slice(0, -1);
+        }
+
+        guessInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') submitGuess(); });
+        window.addEventListener('resize', adjustLayout);
+        
+        init();
+    </script>
+</body>
+</html>

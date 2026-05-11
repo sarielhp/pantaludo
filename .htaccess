@@ -1,0 +1,35 @@
+# Optimized Apache Configuration for Pantaludounboundiglossia!
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # 1. Check if the browser supports Gzip
+    RewriteCond %{HTTP:Accept-Encoding} gzip
+    # 2. Check if a .gz version of the requested file exists
+    RewriteCond %{REQUEST_FILENAME}.gz -f
+    # 3. Secretly serve the .gz file instead of the original
+    RewriteRule ^(.*)\.json$ $1\.json\.gz [L]
+</IfModule>
+
+# 4. Correctly identify the content type and encoding
+<FilesMatch "\.json\.gz$">
+    # Force JSON type so the browser doesn't try to download it as a zip file
+    ForceType application/json
+    
+    <IfModule mod_headers.c>
+        # Explicitly tell the browser the data is Gzipped
+        Header set Content-Encoding gzip
+        # Ensure proxies don't serve the wrong version
+        Header append Vary Accept-Encoding
+    </IfModule>
+
+    <IfModule !mod_headers.c>
+        # Fallback if mod_headers is still disabled
+        AddEncoding gzip .gz
+    </IfModule>
+</FilesMatch>
+
+# 5. Fallback: Compress other text files on the fly
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/css application/javascript
+</IfModule>

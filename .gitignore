@@ -1,0 +1,5 @@
+deploy.zip
+*.gz
+.DS_Store
+.idea/
+.vscode/
