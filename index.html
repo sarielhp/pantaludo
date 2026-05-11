@@ -157,10 +157,22 @@
             align-items: center;
         }
 
+        #headerContainer {
+            display: flex;
+            width: 100%;
+            max-width: 550px;
+            align-items: center;
+            gap: 10px;
+            margin-top: 5px;
+            justify-content: center;
+            position: relative;
+        }
+
         .short-title { display: none; }
         @media (max-width: 520px) {
             .full-title { display: none; }
             .short-title { display: inline; }
+            #headerContainer { justify-content: flex-start; padding-left: 5px; }
         }
 
         @media (min-width: 600px) {
@@ -213,7 +225,7 @@
         </div>
     </div>
 
-    <div id="headerContainer" style="display: flex; width: 100%; max-width: 550px; align-items: center; gap: 10px; margin-top: 5px; justify-content: center; position: relative;">
+    <div id="headerContainer">
         <h1 style="margin: 0; font-size: 1.2rem;">
             <span class="full-title">Pantaludounboundiglossia!</span>
             <span class="short-title">Pantaludo!</span>
