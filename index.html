@@ -449,15 +449,31 @@
 
         function updateHistory() {
             historyDiv.innerHTML = '';
+            
+            // Calculate current max length for the matrix
+            let maxLen = targetWord.length || 5;
+            history.forEach(row => { if (row.length > maxLen) maxLen = row.length; });
+
             history.forEach(row => {
                 const rowDiv = document.createElement('div');
                 rowDiv.className = 'row';
+                
+                // Add actual tiles
                 row.forEach(tile => {
                     const tileDiv = document.createElement('div');
                     tileDiv.className = 'tile ' + tile.status;
                     tileDiv.textContent = tile.char;
                     rowDiv.appendChild(tileDiv);
                 });
+
+                // Pad with empty tiles to complete the matrix
+                for (let i = row.length; i < maxLen; i++) {
+                    const emptyTile = document.createElement('div');
+                    emptyTile.className = 'tile'; // Default style (empty/none)
+                    emptyTile.textContent = '';
+                    rowDiv.appendChild(emptyTile);
+                }
+
                 historyDiv.appendChild(rowDiv);
             });
             // Scroll to bottom of history
