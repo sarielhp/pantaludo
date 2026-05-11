@@ -361,8 +361,23 @@
 
             messageDiv.textContent = '';
             subtitle.style.display = 'none';
-            // headerContainer.style.marginBottom = '50px'; // Removing this as it might cause jumpy layout
+            
+            // Calculate feedback
             const feedback = calculateFeedback(guess, targetWord);
+            
+            // Check if this word is already in history
+            // We can check by joining the characters from the existing history rows
+            const existingIdx = history.findIndex(row => {
+                const wordInHistory = row.map(tile => tile.char).join('');
+                return wordInHistory === guess;
+            });
+
+            if (existingIdx !== -1) {
+                // Remove the old entry
+                history.splice(existingIdx, 1);
+            }
+
+            // Add new entry to the bottom
             history.push(feedback);
             
             adjustLayout();
