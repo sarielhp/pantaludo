@@ -28,7 +28,8 @@
             gap: 2px; 
             justify-content: center; 
             flex-wrap: nowrap; 
-            overflow-x: auto;
+            width: 100%;
+            overflow: visible;
         }
         .tile { 
             width: var(--tile-size, 35px);
@@ -360,16 +361,19 @@
             history.forEach(row => { if (row.length > maxLen) maxLen = row.length; });
             
             const container = document.querySelector('.game-container');
-            const containerWidth = container.offsetWidth || window.innerWidth;
-            const availableWidth = containerWidth - 20; // 10px padding on each side
+            // Use clientWidth to exclude padding
+            const containerWidth = container.clientWidth || window.innerWidth;
+            const availableWidth = containerWidth - 4; // Tiny buffer
             
-            // Calculate size to fit maxLen tiles plus gaps (2px)
-            const gapSize = (maxLen - 1) * 2;
-            let tileSize = Math.floor((availableWidth - gapSize) / maxLen);
+            // Calculate size to fit maxLen tiles plus gaps (2px each)
+            // Total width = maxLen * tileSize + (maxLen - 1) * 2
+            // tileSize = (Total width - (maxLen - 1) * 2) / maxLen
+            const gapTotal = (maxLen - 1) * 2;
+            let tileSize = Math.floor((availableWidth - gapTotal) / maxLen);
             
             // Constraints
             if (tileSize > 45) tileSize = 45;
-            if (tileSize < 12) tileSize = 12;
+            if (tileSize < 10) tileSize = 10;
             
             const fontSize = (tileSize * 0.7) / 16;
             
