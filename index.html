@@ -45,8 +45,6 @@
             font-family: monospace; 
             flex-shrink: 0;
             box-sizing: border-box;
-            overflow-x: hidden;
-            width: 100%;
         }
         @media (max-width: 400px) {
             .tile { border-width: 1px; }
@@ -100,7 +98,7 @@
             flex-shrink: 0;
             box-sizing: border-box;
             touch-action: manipulation;
-            width: auto; /* Buttons should not be 100% by default */
+            width: auto;
         }
         #helpBtn {
             position: absolute;
@@ -363,8 +361,9 @@
             let maxLen = targetWord.length || 5;
             history.forEach(row => { if (row.length > maxLen) maxLen = row.length; });
             
-            const containerWidth = document.querySelector('.game-container').offsetWidth || window.innerWidth;
-            const availableWidth = containerWidth - 10; // minimal padding
+            const container = document.querySelector('.game-container');
+            const containerWidth = container.offsetWidth || window.innerWidth;
+            const availableWidth = containerWidth - 20; // 10px padding on each side
             
             // Calculate size to fit maxLen tiles plus gaps (2px)
             const gapSize = (maxLen - 1) * 2;
@@ -372,7 +371,7 @@
             
             // Constraints
             if (tileSize > 45) tileSize = 45;
-            if (tileSize < 12) tileSize = 12; // Allow even smaller for extreme cases
+            if (tileSize < 12) tileSize = 12;
             
             const fontSize = (tileSize * 0.7) / 16;
             
