@@ -80,6 +80,10 @@
             align-items: center;
             justify-content: center;
         }
+        /* Hide keyboard toggle on devices with a mouse (desktop) */
+        @media (pointer: fine) {
+            .kb-toggle { display: none !important; }
+        }
         .kb-toggle.active {
             color: #56a5d9;
             border-color: #56a5d9;
@@ -98,6 +102,13 @@
             overflow-x: hidden;
             width: 100%;
             touch-action: manipulation;
+        }
+        #helpBtn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: auto;
+            z-index: 10;
         }
         button:hover { background-color: #4a8dbd; }
         button:disabled { background-color: #333; cursor: not-allowed; }
@@ -187,11 +198,11 @@
         </div>
     </div>
 
-    <div id="headerContainer" style="display: flex; width: 100%; max-width: 500px; align-items: center; gap: 10px; margin-top: 10px; flex-wrap: wrap; justify-content: center;">
-        <button id="fsBtn" onclick="toggleFullScreen()" style="background: none; border: 1px solid #3a3a3c; color: #888; padding: 5px; font-size: 1.2rem; border-radius: 4px;" title="Toggle Fullscreen">⛶</button>
+    <div id="headerContainer" style="display: flex; width: 100%; max-width: 500px; align-items: center; gap: 10px; margin-top: 10px; flex-wrap: wrap; justify-content: center; position: relative;">
+        <button id="fsBtn" onclick="toggleFullScreen()" style="background: none; border: 1px solid #3a3a3c; color: #888; padding: 5px; font-size: 1.2rem; border-radius: 4px; width: auto;" title="Toggle Fullscreen">⛶</button>
         <h1 style="margin: 0; flex-grow: 1; font-size: 1.2rem;">Pantaludounboundiglossia!</h1>
-        <button id="helpBtn" onclick="toggleHelp()" style="background: none; border: 1px solid #3a3a3c; color: #888; padding: 5px 10px; font-size: 0.8rem; border-radius: 4px; white-space: nowrap;">Help ?</button>
     </div>
+    <button id="helpBtn" onclick="toggleHelp()" style="background: none; border: 1px solid #3a3a3c; color: #888; padding: 5px 10px; font-size: 0.8rem; border-radius: 4px; white-space: nowrap;">Help ?</button>
     <div id="subtitle" style="color: #90a4ae; font-size: 0.9rem; margin-top: 10px; margin-bottom: 25px; font-style: italic;">"In the beginning there was the word. Then it got complicated..."</div>
     <div class="game-container">
         <div id="history" class="history"></div>
