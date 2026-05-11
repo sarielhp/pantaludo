@@ -349,7 +349,8 @@
         }
 
         function submitGuess() {
-            const guess = guessInput.value.trim().toLowerCase();
+            // Remove all spaces from the guess
+            const guess = guessInput.value.replace(/\s+/g, '').toLowerCase();
             if (!guess) return;
 
             if (!dictionary.has(guess)) {
@@ -360,7 +361,7 @@
 
             messageDiv.textContent = '';
             subtitle.style.display = 'none';
-            headerContainer.style.marginBottom = '50px';
+            // headerContainer.style.marginBottom = '50px'; // Removing this as it might cause jumpy layout
             const feedback = calculateFeedback(guess, targetWord);
             history.push(feedback);
             
